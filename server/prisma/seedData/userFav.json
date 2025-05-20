@@ -1,0 +1,21 @@
+[
+    {
+      "userId" : 1,
+      "connect": {
+        "id": 1
+      }
+    },
+    {
+      "userId" : 1,
+      "connect": {
+        "id": 1
+      }
+    },
+    {
+      "userId" : 1,
+      "connect": {
+        "id": 1
+      }
+    }
+  ]
+  

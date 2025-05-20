@@ -1,0 +1,277 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+// edit these to 
+enum ShopHighlight {
+  Organic
+  FreeRange
+  GrassFed
+  LocallySourced
+  FamilyOwned
+  SeasonalOnly
+  ZeroWaste
+  RenewableEnergy
+  Biodynamic
+  HeritageBreeds
+  FarmToursAvailable
+  SmallBatch
+  SustainablePackaging
+  HandCrafted
+  WomanOwned
+}
+
+// products that they sell
+enum ProductCategory {
+  RawMilk
+  PasteurizedMilk
+  Cheese
+  Butter
+  Yogurt
+  Cream
+  FreshEggs
+  FreeRangeEggs
+  Chicken
+  Duck
+  Turkey
+  Beef
+  Pork
+  Lamb
+  Goat
+  Venison
+  Sausages
+  Bacon
+  FreshFish
+  SmokedFish
+  Shellfish
+  FreshVegetables
+  FreshFruit
+  OrganicProduce
+  Microgreens
+  Herbs
+  Honey
+  JamsAndPreserves
+  Pickles
+  FermentedGoods
+  Chutneys
+  Sauces
+  Vinegar
+  Syrups
+  Sourdough
+  Pastries
+  Cookies
+  Cakes
+  Breads
+  Pies
+  HerbalTeas
+  Tinctures
+  NaturalRemedies
+  DriedHerbs
+  HandmadeSoap
+  SkincareProducts
+  Candles
+  Crafts
+  Pottery
+  Textiles
+  Woodwork
+  Metalwork
+  Plants
+  Flowers
+  Seeds
+  Firewood
+  Compost
+  AnimalFeed
+  Coffee
+  Tea
+  Juice
+  Kombucha
+  Cider
+  HomebrewSupplies
+  GiftBoxes
+  SubscriptionBoxes
+  CustomOrders
+  FarmTours
+  Workshops
+}
+
+enum VendorShopType {
+  Farm
+  DairyFarm
+  Beekeeper
+  Orchard
+  Vineyard
+  Butcher
+  Fishery
+  PoultryFarm
+  MarketStall
+  RoadsideStand
+  SmallRetailShop
+  GardenShed
+  CommunityMarket
+  MobileVan
+  OnlineOnly
+  HomeKitchen
+  SharedKitchen
+  Bakery
+  CoffeeRoaster
+  Herbalist
+  SoapMaker
+  CraftWorkshop
+  Woodworker
+  PotteryStudio
+  TextileStudio
+  UrbanGrower
+  AllotmentPlot
+  MushroomFarm
+}
+// Could use this for vendor applications
+// enum ApplicationStatus {
+//   Pending
+//   Denied
+//   Approved
+// }
+
+// enum PaymentStatus {
+//   Pending
+//   Paid
+//   PartiallyPaid
+//   Overdue
+// }
+
+model VendorShop {
+  id                Int               @id @default(autoincrement())
+  name              String
+  description       String
+  photoUrls         String[]
+  productCategory   ProductCategory[]
+  shopHighlight     ShopHighlight[]
+  isParkingIncluded Boolean           @default(false)
+  vendorShopType    VendorShopType
+  postedDate        DateTime          @default(now())
+  averageRating     Float?            @default(0)
+  numberOfReviews   Int?              @default(0)
+  locationId        Int
+  vendorId          Int
+  slug String @unique
+
+  location     Location      @relation(fields: [locationId], references: [id]) //belongs to one location
+  vendor       Vendor        @relation(fields: [vendorId], references: [id]) // belongs to one vendor
+  favoritedBy  User[]        @relation("UserFavorites") // favourited by users 
+  products     Product[] // vendor shop has many products
+  reviews      Review[] //many reviews
+  isFeatured   Boolean @default(false) // featured shop
+  featuredUntil  DateTime?  // optional: expires after payment duration
+  featuredPayments FeaturedPayment[]
+}
+model FeaturedPayment {
+  id            Int      @id @default(autoincrement())
+  vendorShopId  Int
+  userId        Int
+  amount        Float
+  paidAt        DateTime @default(now())
+  expiresAt     DateTime
+
+  vendorShop    VendorShop @relation(fields: [vendorShopId], references: [id])
+  user          User        @relation(fields: [userId], references: [id])
+}
+
+model Vendor {
+  id          Int    @id @default(autoincrement())
+  userId      Int    @unique
+  name        String?
+  email       String
+  phoneNumber String
+  plan           ShopPlan   @default(SEED)
+  subscriptionId String?    // Stripe subscription ID
+  isActive     Boolean   @default(true)  // use this to disable account a switch for subs
+  activeUntil    DateTime?  // Access control a timer for the subscription
+// each vendor links to one user User.id = Vendor.userId.
+  user        User   @relation(fields: [userId], references: [id]) // linked to one user
+  vendorShops VendorShop[] // one vendor has many shops 
+}
+model User {
+  id          Int     @id @default(autoincrement())
+  cognitoId   String @unique
+  name        String
+  email       String  @unique
+  phoneNumber String
+  password    String
+  role        Role
+  createdAt   DateTime @default(now())
+
+  vendor      Vendor? // One to one
+  reviews     Review[] // Reviews written by the user.
+  favorites   VendorShop[] @relation("UserFavorites") // Favourites
+  featuredPayments FeaturedPayment[]
+}
+
+model Location {
+  id          Int                                   @id @default(autoincrement())
+  address     String
+  city        String
+  state       String
+  country     String
+  postalCode  String
+  coordinates Unsupported("geography(Point, 4326)")
+
+  vendorShops VendorShop[]
+}
+
+// model Payment {
+//   id            Int           @id @default(autoincrement())
+//   amountDue     Float
+//   amountPaid    Float
+//   dueDate       DateTime
+//   paymentDate   DateTime
+//   paymentStatus PaymentStatus
+//   leaseId       Int
+
+//   lease Lease @relation(fields: [leaseId], references: [id])
+// }
+
+model Product {
+  id                  Int      @id @default(autoincrement())
+  vendorShopId            Int
+  name                String
+  description         String
+  price               Float
+  unit                String?
+  tags                String[]
+  imageUrl            String
+  isAvailable         Boolean @default(true)
+  externalPurchaseUrl String?
+  createdAt           DateTime @default(now())
+
+  vendorShop VendorShop @relation(fields: [vendorShopId], references: [id])
+}
+
+model Review {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  vendorShopId   Int
+  rating     Int
+  comment    String
+  createdAt  DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  vendorShop VendorShop @relation(fields: [vendorShopId], references: [id])
+}
+
+enum Role {
+  BUYER
+  VENDOR
+  ADMIN
+}
+enum ShopPlan {
+  SEED    // €5.99/month
+  GROWTH   // €9.99/month
+  BLOOM  // €19.99/month
+}
+
+

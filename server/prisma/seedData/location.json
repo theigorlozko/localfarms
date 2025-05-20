@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "country": "Ireland",
+    "city": "Dublin",
+    "state": "Leinster",
+    "address": "1 Grafton Street",
+    "postalCode": "D02 X285",
+    "coordinates": "POINT(-6.260309 53.342150)"
+  },
+  {
+    "id": 2,
+    "country": "Ireland",
+    "city": "Cork",
+    "state": "Munster",
+    "address": "100 Grand Parade",
+    "postalCode": "T12 D729",
+    "coordinates": "POINT(-8.471119 51.896891)"
+  },
+  {
+    "id": 3,
+    "country": "Ireland",
+    "city": "Galway",
+    "state": "Connacht",
+    "address": "3 Eyre Square",
+    "postalCode": "H91 XW5H",
+    "coordinates": "POINT(-9.049122 53.274412)"
+  },
+  {
+    "id": 4,
+    "country": "Ireland",
+    "city": "Killarney",
+    "state": "Munster",
+    "address": "Main Street",
+    "postalCode": "V93 R2XR",
+    "coordinates": "POINT(-9.507003 52.058365)"
+  }
+]

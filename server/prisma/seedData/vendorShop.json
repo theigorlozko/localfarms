@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "vendorId": 1, 
+    "locationId": 1, 
+    "name": "Green Fields Dairy",
+    "description": "Family-run dairy farm offering raw milk and handmade butter.",
+    "photoUrls": ["https://example.com/greenfields1.jpg"],
+    "productCategory": ["RawMilk", "Butter"],
+    "shopHighlight": ["LocallySourced", "FarmToursAvailable"],
+    "isParkingIncluded": true,
+    "vendorShopType": "DairyFarm",
+    "postedDate": "2023-08-01T00:00:00Z",
+    "averageRating": 4.7,
+    "numberOfReviews": 18,
+    "slug": "green-fields-dairy"
+  },
+  {
+    "id": 2,
+    "vendorId": 2,
+    "locationId": 2,
+    "name": "Bee Haven Apiary",
+    "description": "Locally harvested raw honey and beeswax candles from sustainable hives.",
+    "photoUrls": ["https://example.com/beehaven1.jpg", "https://example.com/beehaven2.jpg"],
+    "productCategory": ["Honey", "Candles"],
+    "shopHighlight": ["Organic", "FreeRange", "GrassFed"],
+    "isParkingIncluded": false,
+    "vendorShopType": "Beekeeper",
+    "postedDate": "2023-09-15T00:00:00Z",
+    "averageRating": 4.9,
+    "numberOfReviews": 12,
+    "slug": "bee-haven-apiary"
+  },
+  {
+    "id": 3,
+    "vendorId": 3,
+    "locationId": 3,
+    "name": "Woodland Veg & More",
+    "description": "Fresh seasonal vegetables and fermented goods from our community market stall.",
+    "photoUrls": ["https://example.com/woodlandveg1.jpg"],
+    "productCategory": ["FreshVegetables", "FermentedGoods", "Pickles"],
+    "shopHighlight": ["SmallBatch", "WomanOwned", "HandCrafted"],
+    "isParkingIncluded": true,
+    "vendorShopType": "MarketStall",
+    "postedDate": "2023-10-05T00:00:00Z",
+    "averageRating": 4.5,
+    "numberOfReviews": 7,
+    "slug": "woodland-veg-market"
+  }
+]

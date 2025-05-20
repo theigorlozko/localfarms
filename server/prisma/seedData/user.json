@@ -1,0 +1,35 @@
+[
+  {
+    "id": 1,
+    "cognitoId": "817b3540-a061-707b-742a-a28391181149",
+    "name": "Carol White",
+    "email": "carol.white@example.com",
+    "phoneNumber": "+353 85 123 4567",
+    "password": "hashed_password_1",
+    "role": "BUYER",
+    "favorites": {
+      "connect": []}
+  },
+  {
+    "id": 2,
+    "cognitoId": "us-east-2:87654321-90ab-cdef-1234-567890abcdef",
+    "name": "Bob Green",
+    "email": "bob.green@example.com",
+    "phoneNumber": "+353 87 234 5678",
+    "password": "hashed_password_2",
+    "role": "BUYER",
+    "favorites": {
+      "connect": []}
+  },
+  {
+    "id": 3,
+    "cognitoId": "us-east-2:98765432-90ab-cdef-1234-567890abcdef",
+    "name": "Alice Brown",
+    "email": "alice.brown@example.com",
+    "phoneNumber": "+353 86 345 6789",
+    "password": "hashed_password_3",
+    "role": "BUYER",
+    "favorites": {
+      "connect": []}
+  }
+]

@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "vendorShopId": 1,
+    "name": "Raw Whole Milk",
+    "description": "Fresh raw whole milk bottled daily on site.",
+    "price": 3.50,
+    "unit": "liter",
+    "tags": ["Organic", "GrassFed"],
+    "imageUrl": "https://example.com/products/milk.jpg",
+    "isAvailable": true,
+    "externalPurchaseUrl": null,
+    "createdAt": "2023-08-01T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "vendorShopId": 2,
+    "name": "Wildflower Honey",
+    "description": "Raw unfiltered honey collected from local wildflowers.",
+    "price": 7.00,
+    "unit": "500g",
+    "tags": ["HandCrafted"],
+    "imageUrl": "https://example.com/products/honey.jpg",
+    "isAvailable": true,
+    "externalPurchaseUrl": null,
+    "createdAt": "2023-09-01T00:00:00Z"
+  },
+  {
+    "id": 3,
+    "vendorShopId": 3,
+    "name": "Fresh Apple Juice",
+    "description": "Pressed fresh from orchard apples, no added sugar.",
+    "price": 4.00,
+    "unit": "1L",
+    "tags": ["SeasonalOnly"],
+    "imageUrl": "https://example.com/products/applejuice.jpg",
+    "isAvailable": true,
+    "externalPurchaseUrl": null,
+    "createdAt": "2023-07-15T00:00:00Z"
+  }
+]
