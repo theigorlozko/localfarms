@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import morgan from 'morgan';
 import helmet from 'helmet';
+import { authMiddleware } from './middleware/authMiddleware';
+import userRoutes from './routes/userRoutes';
+import vendorRoutes from './routes/vendorRoutes';
 
 //Configuring 
 dotenv.config();
@@ -20,6 +23,9 @@ app.use(cors());
 app.get('/', (req, res) => {
   res.send('This is home route!');
 });
+
+app.use('/users', authMiddleware(['buyer']), userRoutes);
+app.use('/vendor', authMiddleware(['vendor']), vendorRoutes);
 
 // Server
 const port = process.env.PORT || 3002;

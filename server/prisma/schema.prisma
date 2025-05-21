@@ -200,9 +200,8 @@ model User {
   cognitoId   String @unique
   name        String
   email       String  @unique
-  phoneNumber String
-  password    String
-  role        Role
+  phoneNumber String?
+  role        Role    @default(BUYER) // Default role
   createdAt   DateTime @default(now())
 
   vendor      Vendor? // One to one

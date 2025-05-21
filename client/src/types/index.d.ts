@@ -131,6 +131,7 @@ declare global {
   }
 
   interface User {
+    role: any;
     cognitoInfo: AuthUser;
     userInfo: Tenant | Manager;
     userRole: JsonObject | JsonPrimitive | JsonArray;
