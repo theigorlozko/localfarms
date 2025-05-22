@@ -8,9 +8,15 @@ export const getUser = async (req: Request, res: Response): Promise<void> => {
         const {cognitoId} = req.params;
         const user = await prisma.user.findUnique({
             where:{cognitoId},
-            include :{
-                favorites: true
-            }
+            select: {
+                id: true,
+                cognitoId: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+                role: true,
+                favorites: true, // Assuming `favorites` is a relation
+              },
         });
         if(user){
             res.json(user)
@@ -51,6 +57,28 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
         res.status(201).json(user);
     } catch (error: any) {
         res.status(500).json({ message: `Error creating user: ${error.message}` });
+    }
+};
+export const updateUser = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { cognitoId } = req.params;
+        const { name, email, phoneNumber } = req.body;
+
+        // Update user
+        console.log("Trying to create user with:", req.body);
+        const updateUser = await prisma.user.update({
+            where: { cognitoId },
+            data: {
+                name,
+                email,
+                phoneNumber,
+                role: "BUYER", // Default role
+            },
+        });
+
+        res.json(updateUser);
+    } catch (error: any) {
+        res.status(500).json({ message: `Error updating user: ${error.message}` });
     }
 };
 

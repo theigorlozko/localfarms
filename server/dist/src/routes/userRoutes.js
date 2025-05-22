@@ -7,5 +7,6 @@ const express_1 = __importDefault(require("express"));
 const userControllers_1 = require("../controllers/userControllers");
 const router = express_1.default.Router();
 router.get("/:cognitoId", userControllers_1.getUser); // get the buyer information
+router.put("/:cognitoId", userControllers_1.updateUser); // get the buyer information
 router.post("/", userControllers_1.createUser); // cretae Buyer if it doesnt exist
 exports.default = router;

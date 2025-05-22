@@ -15,7 +15,7 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: [],
+  tagTypes: ["Vendors","Buyers", "Users"],
   endpoints: (build) => ({
     getAuthUser: build.query<User, void>({
       queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
@@ -44,18 +44,54 @@ export const api = createApi({
           if (response.error) {
             return { error: response.error };
           }
+          const userData = response.data as {
+            id: string;
+            cognitoId: string;
+            name: string;
+            email: string;
+            phoneNumber: string;
+            role: string;
+            favorites: any[]; // Adjust type based on your schema
+            image?: string; // Assuming image is optional
+          };
 
           return {
-            data: response.data as User,
+            data: {
+              id: userData.id,
+              userInfo: {
+                name: userData.name,
+                image: userData.image, // Assuming `image` is optional
+                email: userData.email,
+                phoneNumber: userData.phoneNumber,
+                cognitoId: userData.cognitoId,
+                favorites: userData.favorites,
+                role: userData.role,
+              },
+              userRole: userData.role,
+              cognitoInfo: user,
+              role: userData.role,
+            } satisfies User,
           };
         } catch (error: any) {
           return { error: error.message || "Could not fetch user data" };
         }
       },
     }),
+
+    updateUserSettings: build.mutation<User, {cognitoId: string } & Partial<User>>({
+      query: ({ cognitoId, ...updatedUser }) => ({
+        url: `/users/${cognitoId}`,
+        method: "PUT",
+        body: updatedUser,
+      }),
+      // responsible for matching backend data to front end 
+      invalidatesTags: (result) => [{ type: "Users", id: result?.id }],
+
+    })
   }),
 });
 
 export const {
   useGetAuthUserQuery,
+  useUpdateUserSettingsMutation
 } = api;

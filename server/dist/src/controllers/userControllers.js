@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUser = exports.getUser = void 0;
+exports.updateUser = exports.createUser = exports.getUser = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -17,9 +17,15 @@ const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const { cognitoId } = req.params;
         const user = yield prisma.user.findUnique({
             where: { cognitoId },
-            include: {
-                favorites: true
-            }
+            select: {
+                id: true,
+                cognitoId: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+                role: true,
+                favorites: true, // Assuming `favorites` is a relation
+            },
         });
         if (user) {
             res.json(user);
@@ -62,3 +68,25 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.createUser = createUser;
+const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cognitoId } = req.params;
+        const { name, email, phoneNumber } = req.body;
+        // Update user
+        console.log("Trying to create user with:", req.body);
+        const updateUser = yield prisma.user.update({
+            where: { cognitoId },
+            data: {
+                name,
+                email,
+                phoneNumber,
+                role: "BUYER", // Default role
+            },
+        });
+        res.json(updateUser);
+    }
+    catch (error) {
+        res.status(500).json({ message: `Error updating user: ${error.message}` });
+    }
+});
+exports.updateUser = updateUser;

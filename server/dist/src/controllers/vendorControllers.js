@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createVendor = exports.getVendor = void 0;
+exports.updateVendor = exports.createVendor = exports.getVendor = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getVendor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -75,3 +75,25 @@ const createVendor = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.createVendor = createVendor;
+const updateVendor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId } = req.params;
+        const { name, email, phoneNumber } = req.body;
+        // Update user
+        console.log("Trying to create user with:", req.body);
+        const updateVendor = yield prisma.user.update({
+            where: { id: parseInt(userId, 10) },
+            data: {
+                name,
+                email,
+                phoneNumber,
+                role: "BUYER", // Default role
+            },
+        });
+        res.json(updateVendor);
+    }
+    catch (error) {
+        res.status(500).json({ message: `Error updating vendor: ${error.message}` });
+    }
+});
+exports.updateVendor = updateVendor;

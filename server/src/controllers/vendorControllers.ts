@@ -75,3 +75,26 @@ export const createVendor = async (req: Request, res: Response): Promise<void> =
     }
   };  
 
+  export const updateVendor = async (req: Request, res: Response): Promise<void> => {
+      try {
+          const { userId } = req.params;
+          const { name, email, phoneNumber } = req.body;
+  
+          // Update user
+          console.log("Trying to create user with:", req.body);
+          const updateVendor = await prisma.user.update({
+              where: { id: parseInt(userId, 10) },
+              data: {
+                  name,
+                  email,
+                  phoneNumber,
+                  role: "BUYER", // Default role
+              },
+          });
+  
+          res.json(updateVendor);
+      } catch (error: any) {
+          res.status(500).json({ message: `Error updating vendor: ${error.message}` });
+      }
+  };
+
