@@ -13,99 +13,79 @@ const s3Client = new S3Client({
 })
 
 export const getShops = async (req: Request, res: Response): Promise<void> => {
-    try{
-        const {
-            favoriteIds,
-            priceMin,
-            priceMax,
-            vendorShopType,
-            productCategory,
-            latitude,
-            longitude,
-            products,
-        } = req.query;
- 
-        let whereConditions: Prisma.Sql[] = [];
+  try {
+      const {
+          favoriteIds,
+          priceMin,
+          priceMax,
+          vendorShopType,
+          productCategory,
+          latitude,
+          longitude,
+      } = req.query;
 
-        if (favoriteIds) {
-        const ids = (favoriteIds as string).split(",").map(Number);
-        whereConditions.push(Prisma.sql`vs.id IN (${Prisma.join(ids)})`);
-        }
+      let whereConditions: Prisma.Sql[] = [];
 
-        if (vendorShopType && vendorShopType !== "any") {
-        whereConditions.push(
-            Prisma.sql`vs."vendorShopType" = ${vendorShopType}::"VendorShopType"`
-        );
-        }
+      if (vendorShopType && vendorShopType !== "any") {
+          whereConditions.push(
+              Prisma.sql`vs."vendorShopType" = ${vendorShopType}::"VendorShopType"`
+          );
+      }
 
-        if (productCategory) {
-        const categories = (productCategory as string).split(",");
-        whereConditions.push(
-            Prisma.sql`vs."productCategory" @> ${categories}::"ProductCategory"[]`
-        );
-        }
+      if (typeof productCategory === "string" && productCategory.length > 0) {
+          const categories = (productCategory as string).split(",");
+          whereConditions.push(
+              Prisma.sql`vs."productCategory" @> ${categories}::"ProductCategory"[]`
+          );
+      }
 
-        if (latitude && longitude) {
-        const lat = parseFloat(latitude as string);
-        const lng = parseFloat(longitude as string);
-        const radiusKm = 1000;
-        const deg = radiusKm / 111;
+      if (latitude && longitude) {
+          const lat = parseFloat(latitude as string);
+          const lng = parseFloat(longitude as string);
+          const radiusKm = 1000; 
+          const deg = radiusKm / 111;
 
-        whereConditions.push(
-            Prisma.sql`ST_DWithin(
-            l.coordinates::geometry,
-            ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
-            ${deg}
-            )`
-        );
-        }
+          whereConditions.push(
+              Prisma.sql`ST_DWithin(
+                  l.coordinates::geometry,
+                  ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
+                  ${deg}
+              )`
+          );
+      }
 
-        // ✨ Price filter is based on product prices inside vendorShops
-        let priceJoin = Prisma.empty;
-        if (priceMin || priceMax) {
-        priceJoin = Prisma.sql`JOIN "Product" pr ON pr."vendorShopId" = vs.id`;
+      const completeQuery = Prisma.sql`
+          SELECT
+              vs.*,
+              json_build_object(
+                  'id', l.id,
+                  'address', l.address,
+                  'city', l.city,
+                  'state', l.state,
+                  'country', l.country,
+                  'postalCode', l."postalCode",
+                  'coordinates', json_build_object(
+                      'longitude', ST_X(l."coordinates"::geometry),
+                      'latitude', ST_Y(l."coordinates"::geometry)
+                  )
+              ) AS location
+          FROM "VendorShop" vs
+          JOIN "Location" l ON vs."locationId" = l.id
+          ${
+              whereConditions.length > 0
+                  ? Prisma.sql`WHERE ${Prisma.join(whereConditions, " AND ")}`
+                  : Prisma.empty
+          }
+          GROUP BY vs.id, l.id
+      `;
 
-        if (priceMin) {
-            whereConditions.push(Prisma.sql`pr.price >= ${Number(priceMin)}`);
-        }
-        if (priceMax) {
-            whereConditions.push(Prisma.sql`pr.price <= ${Number(priceMax)}`);
-        }
-        }
+      const results = await prisma.$queryRaw(completeQuery);
 
-        // Selecting everything from vendor shop and building return from the database
-        const completeQuery = Prisma.sql` 
-        SELECT
-            vs.*,
-            json_build_object(
-            'id', l.id,
-            'address', l.address,
-            'city', l.city,
-            'state', l.state,
-            'country', l.country,
-            'postalCode', l."postalCode",
-            'coordinates', json_build_object(
-                'longitude', ST_X(l."coordinates"::geometry),
-                'latitude', ST_Y(l."coordinates"::geometry)
-            )
-            ) AS location
-        FROM "VendorShop" vs
-        JOIN "Location" l ON vs."locationId" = l.id
-        ${priceJoin}
-        ${
-            whereConditions.length > 0
-            ? Prisma.sql`WHERE ${Prisma.join(whereConditions, " AND ")}`
-            : Prisma.empty
-        }
-        GROUP BY vs.id, l.id
-        `;
-
-        const results = await prisma.$queryRaw(completeQuery);
-        res.json(results);
-
-    }catch(error: any){
-        res.status(500).json({message: `Error retrieving shops: ${error.message}`})
-    }
+      res.json(results);
+  } catch (error: any) {
+      console.error("Error retrieving shops:", error);
+      res.status(500).json({ message: `Error retrieving shops: ${error.message}` });
+  }
 };
 
 export const getShop = async (req: Request, res: Response): Promise<void> => {
@@ -137,6 +117,7 @@ export const getShop = async (req: Request, res: Response): Promise<void> => {
                 }
             }
             res.json(shopWithCoordinates); // pass to frontend 
+            
         }
     }catch(err: any){
         res

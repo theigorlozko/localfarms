@@ -35,16 +35,12 @@ const s3Client = new client_s3_1.S3Client({
 });
 const getShops = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { favoriteIds, priceMin, priceMax, vendorShopType, productCategory, latitude, longitude, products, } = req.query;
+        const { favoriteIds, priceMin, priceMax, vendorShopType, productCategory, latitude, longitude, } = req.query;
         let whereConditions = [];
-        if (favoriteIds) {
-            const ids = favoriteIds.split(",").map(Number);
-            whereConditions.push(client_1.Prisma.sql `vs.id IN (${client_1.Prisma.join(ids)})`);
-        }
         if (vendorShopType && vendorShopType !== "any") {
             whereConditions.push(client_1.Prisma.sql `vs."vendorShopType" = ${vendorShopType}::"VendorShopType"`);
         }
-        if (productCategory) {
+        if (typeof productCategory === "string" && productCategory.length > 0) {
             const categories = productCategory.split(",");
             whereConditions.push(client_1.Prisma.sql `vs."productCategory" @> ${categories}::"ProductCategory"[]`);
         }
@@ -54,50 +50,38 @@ const getShops = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             const radiusKm = 1000;
             const deg = radiusKm / 111;
             whereConditions.push(client_1.Prisma.sql `ST_DWithin(
-            l.coordinates::geometry,
-            ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
-            ${deg}
-            )`);
+                  l.coordinates::geometry,
+                  ST_SetSRID(ST_MakePoint(${lng}, ${lat}), 4326),
+                  ${deg}
+              )`);
         }
-        // ✨ Price filter is based on product prices inside vendorShops
-        let priceJoin = client_1.Prisma.empty;
-        if (priceMin || priceMax) {
-            priceJoin = client_1.Prisma.sql `JOIN "Product" pr ON pr."vendorShopId" = vs.id`;
-            if (priceMin) {
-                whereConditions.push(client_1.Prisma.sql `pr.price >= ${Number(priceMin)}`);
-            }
-            if (priceMax) {
-                whereConditions.push(client_1.Prisma.sql `pr.price <= ${Number(priceMax)}`);
-            }
-        }
-        // Selecting everything from vendor shop and building return from the database
-        const completeQuery = client_1.Prisma.sql ` 
-        SELECT
-            vs.*,
-            json_build_object(
-            'id', l.id,
-            'address', l.address,
-            'city', l.city,
-            'state', l.state,
-            'country', l.country,
-            'postalCode', l."postalCode",
-            'coordinates', json_build_object(
-                'longitude', ST_X(l."coordinates"::geometry),
-                'latitude', ST_Y(l."coordinates"::geometry)
-            )
-            ) AS location
-        FROM "VendorShop" vs
-        JOIN "Location" l ON vs."locationId" = l.id
-        ${priceJoin}
-        ${whereConditions.length > 0
+        const completeQuery = client_1.Prisma.sql `
+          SELECT
+              vs.*,
+              json_build_object(
+                  'id', l.id,
+                  'address', l.address,
+                  'city', l.city,
+                  'state', l.state,
+                  'country', l.country,
+                  'postalCode', l."postalCode",
+                  'coordinates', json_build_object(
+                      'longitude', ST_X(l."coordinates"::geometry),
+                      'latitude', ST_Y(l."coordinates"::geometry)
+                  )
+              ) AS location
+          FROM "VendorShop" vs
+          JOIN "Location" l ON vs."locationId" = l.id
+          ${whereConditions.length > 0
             ? client_1.Prisma.sql `WHERE ${client_1.Prisma.join(whereConditions, " AND ")}`
             : client_1.Prisma.empty}
-        GROUP BY vs.id, l.id
-        `;
+          GROUP BY vs.id, l.id
+      `;
         const results = yield prisma.$queryRaw(completeQuery);
         res.json(results);
     }
     catch (error) {
+        console.error("Error retrieving shops:", error);
         res.status(500).json({ message: `Error retrieving shops: ${error.message}` });
     }
 });

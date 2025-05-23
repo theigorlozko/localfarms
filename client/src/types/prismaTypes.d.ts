@@ -74,6 +74,8 @@ export namespace $Enums {
 export type ShopHighlight = (typeof ShopHighlight)[keyof typeof ShopHighlight]
 
 
+
+
 export const ProductCategory: {
   RawMilk: 'RawMilk',
   PasteurizedMilk: 'PasteurizedMilk',

@@ -1,6 +1,8 @@
-import { createNewUserInDatabase } from "@/lib/utils";
+import { cleanParams, createNewUserInDatabase, withToast } from "@/lib/utils";
+import { VendorShop } from "@/types/prismaTypes";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { fetchAuthSession, getCurrentUser } from "aws-amplify/auth";
+import { FiltersState } from ".";
 
 export const api = createApi({
   baseQuery: fetchBaseQuery({
@@ -15,7 +17,7 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: ["Vendors","Buyers", "Users"],
+  tagTypes: ["Vendors","Buyers", "Users", "Shops"],
   endpoints: (build) => ({
     getAuthUser: build.query<User, void>({
       queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
@@ -87,11 +89,54 @@ export const api = createApi({
       // responsible for matching backend data to front end 
       invalidatesTags: (result) => [{ type: "Users", id: result?.id }],
 
-    })
+    }),
+
+    // Shop related endpoints.
+    getShops: build.query<
+        VendorShop[],
+        Partial<FiltersState> & { favoriteIds?: number[] }
+      >({
+        query: (filters) => {
+          const params = cleanParams({
+            location: filters.location,
+            priceMin: filters.priceRange?.[0],
+            priceMax: filters.priceRange?.[1],
+            vendorShopType:
+              filters.vendorShopType && filters.vendorShopType !== "any"
+                ? filters.vendorShopType
+                : undefined,
+            productCategory:
+              filters.productCategory && filters.productCategory.length > 0
+                ? filters.productCategory.join(",")
+                : undefined,
+            favoriteIds:
+              filters.favoriteIds && filters.favoriteIds.length > 0
+                ? filters.favoriteIds.join(",")
+                : undefined,
+            latitude: filters.coordinates?.[1],
+            longitude: filters.coordinates?.[0],
+          });
+          return { url: "shops", params };
+     },
+     providesTags: (result) =>
+        result
+          ? [
+              ...result.map(({ id }) => ({ type: "Shops" as const, id })),
+              { type: "Shops", id: "LIST" },
+            ]
+          : [{ type: "Shops", id: "LIST" }],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Failed to fetch shops.",
+        });
+      },
+    }),  
   }),
 });
 
+
 export const {
   useGetAuthUserQuery,
-  useUpdateUserSettingsMutation
+  useUpdateUserSettingsMutation,
+  useGetShopsQuery,
 } = api;

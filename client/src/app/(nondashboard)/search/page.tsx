@@ -8,6 +8,7 @@ import FiltersBar from './FiltersBar';
 import FiltersFull from './FiltersFull';
 import { cleanParams } from '@/lib/utils';
 import { setFilters } from '@/state';
+import Map from './Map';
 
 const SearchPage = () => {
     const searchParams = useSearchParams();
@@ -35,7 +36,7 @@ const SearchPage = () => {
 
   return (
     <div
-      className="w-full mx-auto px-5 flex flex-col"
+      className="w-full mx-auto px-5 flex flex-col transition-all duration-300 ease-in-out"
       style={{
         height: `calc(100vh - ${NAVBAR_HEIGHT}px)`,
       }}
@@ -51,13 +52,14 @@ const SearchPage = () => {
         >
           <FiltersFull />
         </div>
-        {/* <Map /> */}
+        <Map /> 
         <div className="basis-4/12 overflow-y-auto">
           {/* <Listings /> */}
         </div>
       </div>
     </div>
   )
-}
+};
+
 
 export default SearchPage

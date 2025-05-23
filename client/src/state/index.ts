@@ -20,7 +20,7 @@ export const initialState: InitialStateTypes = {
     priceRange: [null, null],
     vendorShopType: "any",
     productCategory: [],
-    coordinates: [53.3498, 6.2603]
+    coordinates: [-6.2603, 53.3498] // ✅ [longitude, latitude]
   },
   isFiltersFullOpen: false,
   viewMode: "grid", 
