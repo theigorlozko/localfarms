@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateUser = exports.createUser = exports.getUser = void 0;
+exports.removeFavoriteShop = exports.addFavoriteShop = exports.updateUser = exports.createUser = exports.getUser = void 0;
 const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const getUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -90,3 +90,60 @@ const updateUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.updateUser = updateUser;
+const addFavoriteShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cognitoId, vendorShopId } = req.params; // sending cognitoId and the VendorShopId 
+        const user = yield prisma.user.findUnique({
+            where: { cognitoId },
+            include: {
+                favorites: true, // Include the favorites relation
+            },
+        });
+        const shopIdNumber = Number(vendorShopId);
+        const existingFavorites = (user === null || user === void 0 ? void 0 : user.favorites) || [];
+        // checking is the favorite already exists
+        if (!existingFavorites.some((fav) => fav.id === shopIdNumber)) {
+            const updatedUser = yield prisma.user.update({
+                where: { cognitoId },
+                data: {
+                    favorites: {
+                        connect: { id: shopIdNumber }, // Connect the new favorite shop
+                    },
+                },
+                include: {
+                    favorites: true, // Include the updated favorites
+                },
+            });
+            res.json(updatedUser);
+        }
+        else {
+            res.status(409).json({ message: "Shop already in favorites" });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ message: `Error adding favorite shop: ${err.message}` });
+    }
+});
+exports.addFavoriteShop = addFavoriteShop;
+const removeFavoriteShop = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cognitoId, vendorShopId } = req.params; // sending cognitoId and the VendorShopId 
+        const shopIdNumber = Number(vendorShopId);
+        const updatedUser = yield prisma.user.update({
+            where: { cognitoId },
+            data: {
+                favorites: {
+                    disconnect: { id: shopIdNumber }, // Connect the new favorite shop
+                },
+            },
+            include: {
+                favorites: true, // Include the updated favorites
+            },
+        });
+        res.json(updatedUser);
+    }
+    catch (err) {
+        res.status(500).json({ message: `Error removing favorite shop: ${err.message}` });
+    }
+});
+exports.removeFavoriteShop = removeFavoriteShop;

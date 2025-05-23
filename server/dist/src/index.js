@@ -12,6 +12,7 @@ const helmet_1 = __importDefault(require("helmet"));
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const vendorRoutes_1 = __importDefault(require("./routes/vendorRoutes"));
+const shopsRoutes_1 = __importDefault(require("./routes/shopsRoutes"));
 //Configuring 
 dotenv_1.default.config();
 const app = (0, express_1.default)();
@@ -26,6 +27,7 @@ app.use((0, cors_1.default)());
 app.get('/', (req, res) => {
     res.send('This is home route!');
 });
+app.use("/shops", shopsRoutes_1.default);
 app.use('/users', (0, authMiddleware_1.authMiddleware)(['buyer']), userRoutes_1.default);
 app.use('/vendor', (0, authMiddleware_1.authMiddleware)(['vendor']), vendorRoutes_1.default);
 // Server

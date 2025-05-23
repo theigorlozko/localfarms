@@ -9,8 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateVendor = exports.createVendor = exports.getVendor = void 0;
+exports.getVendorShops = exports.updateVendor = exports.createVendor = exports.getVendor = void 0;
 const client_1 = require("@prisma/client");
+const wkt_1 = require("@terraformer/wkt");
 const prisma = new client_1.PrismaClient();
 const getVendor = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -97,3 +98,45 @@ const updateVendor = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     }
 });
 exports.updateVendor = updateVendor;
+const getVendorShops = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { cognitoId } = req.params;
+        // Step 1: Get the user and include the linked vendor
+        const user = yield prisma.user.findUnique({
+            where: { cognitoId },
+            include: {
+                vendor: true,
+            },
+        });
+        if (!user || !user.vendor) {
+            res.status(404).json({ message: "Vendor not found" });
+            return; // optional, just to end the function early
+        }
+        // Step 2: Use vendorId to find shops
+        const shops = yield prisma.vendorShop.findMany({
+            where: { vendorId: user.vendor.id },
+            include: {
+                location: true,
+            },
+        });
+        // Step 3: Format location coordinates
+        const shopsWithFormattedLocation = yield Promise.all(shops.map((shop) => __awaiter(void 0, void 0, void 0, function* () {
+            var _a;
+            const coordinates = yield prisma.$queryRaw `
+            SELECT ST_AsText(coordinates) as coordinates FROM "Location" WHERE id = ${shop.location.id}
+          `;
+            const geoJSON = (0, wkt_1.wktToGeoJSON)(((_a = coordinates[0]) === null || _a === void 0 ? void 0 : _a.coordinates) || "");
+            const longitude = geoJSON.coordinates[0];
+            const latitude = geoJSON.coordinates[1];
+            return Object.assign(Object.assign({}, shop), { location: Object.assign(Object.assign({}, shop.location), { coordinates: {
+                        longitude,
+                        latitude,
+                    } }) });
+        })));
+        res.json(shopsWithFormattedLocation);
+    }
+    catch (err) {
+        res.status(500).json({ message: `Error retrieving vendor shops: ${err.message}` });
+    }
+});
+exports.getVendorShops = getVendorShops;

@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { wktToGeoJSON } from "@terraformer/wkt";
 
 const prisma = new PrismaClient();
 
@@ -96,5 +97,60 @@ export const createVendor = async (req: Request, res: Response): Promise<void> =
       } catch (error: any) {
           res.status(500).json({ message: `Error updating vendor: ${error.message}` });
       }
+  };
+
+  export const getVendorShops = async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { cognitoId } = req.params;
+  
+      // Step 1: Get the user and include the linked vendor
+      const user = await prisma.user.findUnique({
+        where: { cognitoId },
+        include: {
+          vendor: true,
+        },
+      });
+  
+      if (!user || !user.vendor) {
+        res.status(404).json({ message: "Vendor not found" });
+        return; // optional, just to end the function early
+      }
+  
+      // Step 2: Use vendorId to find shops
+      const shops = await prisma.vendorShop.findMany({
+        where: { vendorId: user.vendor.id },
+        include: {
+          location: true,
+        },
+      });
+  
+      // Step 3: Format location coordinates
+      const shopsWithFormattedLocation = await Promise.all(
+        shops.map(async (shop) => {
+          const coordinates: { coordinates: string }[] = await prisma.$queryRaw`
+            SELECT ST_AsText(coordinates) as coordinates FROM "Location" WHERE id = ${shop.location.id}
+          `;
+  
+          const geoJSON: any = wktToGeoJSON(coordinates[0]?.coordinates || "");
+          const longitude = geoJSON.coordinates[0];
+          const latitude = geoJSON.coordinates[1];
+  
+          return {
+            ...shop,
+            location: {
+              ...shop.location,
+              coordinates: {
+                longitude,
+                latitude,
+              },
+            },
+          };
+        })
+      );
+  
+      res.json(shopsWithFormattedLocation);
+    } catch (err: any) {
+      res.status(500).json({ message: `Error retrieving vendor shops: ${err.message}` });
+    }
   };
 

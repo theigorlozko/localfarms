@@ -7,6 +7,7 @@ import helmet from 'helmet';
 import { authMiddleware } from './middleware/authMiddleware';
 import userRoutes from './routes/userRoutes';
 import vendorRoutes from './routes/vendorRoutes';
+import shopsRoutes from './routes/shopsRoutes';
 
 //Configuring 
 dotenv.config();
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
   res.send('This is home route!');
 });
 
+app.use("/shops", shopsRoutes);
 app.use('/users', authMiddleware(['buyer']), userRoutes);
 app.use('/vendor', authMiddleware(['vendor']), vendorRoutes);
 
