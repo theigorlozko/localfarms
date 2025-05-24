@@ -1,4 +1,4 @@
-import { FiltersState, setFilters, setViewMode, toggleFiltersFullOpen } from '@/state';
+import { FiltersState, initialState, setFilters, setViewMode, toggleFiltersFullOpen } from '@/state';
 import { useAppSelector } from '@/state/redux';
 import { usePathname, useRouter } from 'next/navigation';
 import React, { useState } from 'react'
@@ -11,11 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ShopCategoryIcons } from '@/lib/constants';
 
+
 const FiltersBar = () => {
 
     const dispatch = useDispatch();
     const router = useRouter();
     const pathname = usePathname();
+    const [localFilters, setLocalFilters] = useState(initialState.filters);
     
     const filters = useAppSelector((state) => state.global.filters);
     const isFiltersFullOpen = useAppSelector(
@@ -64,6 +66,29 @@ const FiltersBar = () => {
         dispatch(setFilters(newFilters));
         updateURL(newFilters);
     };
+    const handleLocationSearch = async () => {
+        try {
+            const response = await fetch(
+              `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+                searchInput
+              )}.json?access_token=${
+                process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN
+              }&fuzzyMatch=true`
+            );
+            const data = await response.json();
+            if (data.features && data.features.length > 0) {
+              const [lng, lat] = data.features[0].center;
+              dispatch(
+                setFilters({
+                    location: searchInput,
+                    coordinates: [lng, lat],
+                })
+              )
+            }
+          } catch (err) {
+            console.error("Error search location:", err);
+          }
+    }
 
   return (
     <div className="flex justify-between items-center w-full py-5">
@@ -91,7 +116,7 @@ const FiltersBar = () => {
                 className="w-40 rounded-l-xl rounded-r-none border-primary-400 border-r-0"
             />
             <Button
-                // onClick={handleLocationSearch}
+                onClick={handleLocationSearch}
                 className={`rounded-r-xl rounded-l-none border-l-none border-primary-400 shadow-none 
                 border hover:bg-primary-700 hover:text-primary-50`}
             >

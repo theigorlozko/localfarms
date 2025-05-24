@@ -1,6 +1,6 @@
 import { LucideIcon } from "lucide-react";
 import { AuthUser } from "aws-amplify/auth";
-import { Manager, Tenant, Property, Application, Vendor } from "./prismaTypes";
+import { Manager, Tenant, Property, Application, Vendor, VendorShop } from "./prismaTypes";
 import { MotionProps as OriginalMotionProps } from "framer-motion";
 
 declare module "framer-motion" {
@@ -26,22 +26,112 @@ declare global {
     WiFi = "WiFi",
   }
 
+  enum ProductCategoryEnum {
+    RawMilk = "RawMilk",
+    PasteurizedMilk = "PasteurizedMilk",
+    Cheese = "Cheese",
+    Butter = "Butter",
+    Yogurt = "Yogurt",
+    Cream = "Cream",
+    FreshEggs = "FreshEggs",
+    FreeRangeEggs = "FreeRangeEggs",
+    Chicken = "Chicken",
+    Duck = "Duck",
+    Turkey = "Turkey",
+    Beef = "Beef",
+    Pork = "Pork",
+    Lamb = "Lamb",
+    Goat = "Goat",
+    Venison = "Venison",
+    Sausages = "Sausages",
+    Bacon = "Bacon",
+    FreshFish = "FreshFish",
+    SmokedFish = "SmokedFish",
+    Shellfish = "Shellfish",
+    FreshVegetables = "FreshVegetables",
+    FreshFruit = "FreshFruit",
+    OrganicProduce = "OrganicProduce",
+    Microgreens = "Microgreens",
+    Herbs = "Herbs",
+    Honey = "Honey",
+    JamsAndPreserves = "JamsAndPreserves",
+    Pickles = "Pickles",
+    FermentedGoods = "FermentedGoods",
+    Chutneys = "Chutneys",
+    Sauces = "Sauces",
+    Vinegar = "Vinegar",
+    Syrups = "Syrups",
+    Sourdough = "Sourdough",
+    Pastries = "Pastries",
+    Cookies = "Cookies",
+    Cakes = "Cakes",
+    Breads = "Breads",
+    Pies = "Pies",
+    HerbalTeas = "HerbalTeas",
+    Tinctures = "Tinctures",
+    NaturalRemedies = "NaturalRemedies",
+    DriedHerbs = "DriedHerbs",
+    HandmadeSoap = "HandmadeSoap",
+    SkincareProducts = "SkincareProducts",
+    Candles = "Candles",
+    Crafts = "Crafts",
+    Pottery = "Pottery",
+    Textiles = "Textiles",
+    Woodwork = "Woodwork",
+    Metalwork = "Metalwork",
+    Plants = "Plants",
+    Flowers = "Flowers",
+    Seeds = "Seeds",
+    Firewood = "Firewood",
+    Compost = "Compost",
+    AnimalFeed = "AnimalFeed",
+    Coffee = "Coffee",
+    Tea = "Tea",
+    Juice = "Juice",
+    Kombucha = "Kombucha",
+    Cider = "Cider",
+    HomebrewSupplies = "HomebrewSupplies",
+    GiftBoxes = "GiftBoxes",
+    SubscriptionBoxes = "SubscriptionBoxes",
+    CustomOrders = "CustomOrders",
+    FarmTours = "FarmTours",
+    Workshops = "Workshops"
+  }
+
+  enum ShopHighlightEnum {
+    Organic = "Organic",
+    FreeRange = "FreeRange",
+    GrassFed = "GrassFed",
+    LocallySourced = "LocallySourced",
+    FamilyOwned = "FamilyOwned",
+    SeasonalOnly = "SeasonalOnly",
+    ZeroWaste = "ZeroWaste",
+    RenewableEnergy = "RenewableEnergy",
+    Biodynamic = "Biodynamic",
+    HeritageBreeds = "HeritageBreeds",
+    FarmToursAvailable = "FarmToursAvailable",
+    SmallBatch = "SmallBatch",
+    SustainablePackaging = "SustainablePackaging",
+    HandCrafted = "HandCrafted",
+    WomanOwned = "WomanOwned"
+  }
+  
   enum HighlightEnum {
-    HighSpeedInternetAccess = "HighSpeedInternetAccess",
-    WasherDryer = "WasherDryer",
-    AirConditioning = "AirConditioning",
-    Heating = "Heating",
-    SmokeFree = "SmokeFree",
-    CableReady = "CableReady",
-    SatelliteTV = "SatelliteTV",
-    DoubleVanities = "DoubleVanities",
-    TubShower = "TubShower",
-    Intercom = "Intercom",
-    SprinklerSystem = "SprinklerSystem",
-    RecentlyRenovated = "RecentlyRenovated",
-    CloseToTransit = "CloseToTransit",
-    GreatView = "GreatView",
-    QuietNeighborhood = "QuietNeighborhood",
+    Organic = "Organic",
+    FreeRange = "FreeRange",
+    GrassFed = "GrassFed",
+    LocallySourced = "LocallySourced",
+    FamilyOwned = "FamilyOwned",
+    SeasonalOnly = "SeasonalOnly",
+    ZeroWaste = "ZeroWaste",
+    RenewableEnergy = "RenewableEnergy",
+    Biodynamic = "Biodynamic",
+    HeritageBreeds = "HeritageBreeds",
+    FarmToursAvailable = "FarmToursAvailable",
+    SmallBatch = "SmallBatch",
+    SustainablePackaging = "SustainablePackaging",
+    HandCrafted = "HandCrafted",
+    WomanOwned = "WomanOwned",
   }
 
   enum PropertyTypeEnum {
@@ -59,8 +149,23 @@ declare global {
     label: string;
   }
 
-  interface PropertyOverviewProps {
-    propertyId: number;
+  interface ShopOverviewProps{
+    vendorShopId: number;
+  }
+
+  interface ShopOverviewProps {
+    vendorShopId: number;
+    location?: {
+    address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
+    postalCode?: string;
+    coordinates?: {
+      longitude: number;
+      latitude: number;
+    };
+  };
   }
 
   interface ApplicationModalProps {
@@ -77,8 +182,8 @@ declare global {
     images: string[];
   }
 
-  interface PropertyDetailsProps {
-    propertyId: number;
+  interface ShopDetailsProps {
+    vendorShopId: number;
   }
 
   interface PropertyOverviewProps {
@@ -96,20 +201,44 @@ declare global {
   }
 
   interface CardProps {
-    property: Property;
+    shop: VendorShop & {
+      location?: {
+        address?: string;
+        city?: string;
+      };
+    };
     isFavorite: boolean;
     onFavoriteToggle: () => void;
     showFavoriteButton?: boolean;
-    propertyLink?: string;
+    shopLink?: string;
   }
 
   interface CardCompactProps {
-    property: Property;
+    shop: VendorShop & {
+      location?: {
+        address?: string;
+        city?: string;
+      };
+    };
     isFavorite: boolean;
     onFavoriteToggle: () => void;
     showFavoriteButton?: boolean;
-    propertyLink?: string;
+    shopLink?: string;
   }
+
+  export type VendorShopWithLocation = VendorShop & {
+    location: {
+      address: string;
+      city: string;
+      state: string;
+      country: string;
+      postalCode: string;
+      coordinates: {
+        longitude: number;
+        latitude: number;
+      };
+    };
+  };
 
   interface HeaderProps {
     title: string;

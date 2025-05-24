@@ -12,7 +12,6 @@ import {
   Maximize,
   Bath,
   Phone,
-  Sprout,
   Hammer,
   Bus,
   Mountain,
@@ -23,75 +22,88 @@ import {
   Castle,
   Trees,
   LucideIcon,
+  Leaf,
+  Handshake,
+  HeartHandshake,
+  Recycle,
+  Flame,
+  Gift,
+  Sparkles,
+  BadgeCheck,
+  Users,
+  Globe,
+  Sun,
+  HandPlatter,
+  HandCoins,
+  PackageCheck,
+  Sprout
   
 } from "lucide-react";
+import {
+  FaFish,
+  FaDrumstickBite,
+  FaEgg,
+  FaCarrot,
+  
+  FaCookie,
+  
+  FaLeaf,
+  FaFlask,
+  FaGift,
+  FaBox,
+  FaHandsHelping,
+  FaWineBottle,
+} from "react-icons/fa";
+import {
+  FaSeedling,
+  FaCheese,
+  FaAppleAlt,
+  FaSoap,
+  FaStore,
+  FaGlassWhiskey,
+  FaFireAlt,
+  FaBreadSlice,
+  FaHammer,
+  FaMugHot,
+  FaCut
+} from 'react-icons/fa';
 
-export enum AmenityEnum {
-  WasherDryer = "WasherDryer",
-  AirConditioning = "AirConditioning",
-  Dishwasher = "Dishwasher",
-  HighSpeedInternet = "HighSpeedInternet",
-  HardwoodFloors = "HardwoodFloors",
-  WalkInClosets = "WalkInClosets",
-  Microwave = "Microwave",
-  Refrigerator = "Refrigerator",
-  Pool = "Pool",
-  Gym = "Gym",
-  Parking = "Parking",
-  PetsAllowed = "PetsAllowed",
-  WiFi = "WiFi",
-}
 
-export const AmenityIcons: Record<AmenityEnum, LucideIcon> = {
-  WasherDryer: Waves,
-  AirConditioning: Thermometer,
-  Dishwasher: Waves,
-  HighSpeedInternet: Wifi,
-  HardwoodFloors: Home,
-  WalkInClosets: Maximize,
-  Microwave: Tv,
-  Refrigerator: Thermometer,
-  Pool: Waves,
-  Gym: Dumbbell,
-  Parking: Car,
-  PetsAllowed: PawPrint,
-  WiFi: Wifi,
-};
 
 export enum HighlightEnum {
-  HighSpeedInternetAccess = "HighSpeedInternetAccess",
-  WasherDryer = "WasherDryer",
-  AirConditioning = "AirConditioning",
-  Heating = "Heating",
-  SmokeFree = "SmokeFree",
-  CableReady = "CableReady",
-  SatelliteTV = "SatelliteTV",
-  DoubleVanities = "DoubleVanities",
-  TubShower = "TubShower",
-  Intercom = "Intercom",
-  SprinklerSystem = "SprinklerSystem",
-  RecentlyRenovated = "RecentlyRenovated",
-  CloseToTransit = "CloseToTransit",
-  GreatView = "GreatView",
-  QuietNeighborhood = "QuietNeighborhood",
+  Organic = "Organic",
+  FreeRange = "FreeRange",
+  GrassFed = "GrassFed",
+  LocallySourced = "LocallySourced",
+  FamilyOwned = "FamilyOwned",
+  SeasonalOnly = "SeasonalOnly",
+  ZeroWaste = "ZeroWaste",
+  RenewableEnergy = "RenewableEnergy",
+  Biodynamic = "Biodynamic",
+  HeritageBreeds = "HeritageBreeds",
+  FarmToursAvailable = "FarmToursAvailable",
+  SmallBatch = "SmallBatch",
+  SustainablePackaging = "SustainablePackaging",
+  HandCrafted = "HandCrafted",
+  WomanOwned = "WomanOwned",
 }
 
-export const HighlightIcons: Record<HighlightEnum, LucideIcon> = {
-  HighSpeedInternetAccess: Wifi,
-  WasherDryer: Waves,
-  AirConditioning: Thermometer,
-  Heating: Thermometer,
-  SmokeFree: Cigarette,
-  CableReady: Cable,
-  SatelliteTV: Tv,
-  DoubleVanities: Maximize,
-  TubShower: Bath,
-  Intercom: Phone,
-  SprinklerSystem: Sprout,
-  RecentlyRenovated: Hammer,
-  CloseToTransit: Bus,
-  GreatView: Mountain,
-  QuietNeighborhood: VolumeX,
+export const HighlightIcons: Record<ShopHighlightEnum, LucideIcon> = {
+  Organic: Leaf,
+  FreeRange: Handshake,
+  GrassFed: Sprout,
+  LocallySourced: Globe,
+  FamilyOwned: Users,
+  SeasonalOnly: Sun,
+  ZeroWaste: Recycle,
+  RenewableEnergy: Flame,
+  Biodynamic: Sparkles,
+  HeritageBreeds: BadgeCheck,
+  FarmToursAvailable: HandPlatter,
+  SmallBatch: HandCoins,
+  SustainablePackaging: PackageCheck,
+  HandCrafted: Handshake,
+  WomanOwned: Gift
 };
 
 export enum PropertyTypeEnum {
@@ -137,20 +149,6 @@ export const testUsers = {
   managerRole: "manager",
 };
 
-import {
-  FaSeedling,
-  FaCheese,
-  FaAppleAlt,
-  FaSoap,
-  FaStore,
-  FaGlassWhiskey,
-  FaFireAlt,
-  FaBreadSlice,
-  FaHammer,
-  FaMugHot,
-  FaCut
-} from 'react-icons/fa';
-
 export const ShopCategoryIcons = {
   Beekeeper: FaSeedling,
   "Jam Maker": FaAppleAlt,
@@ -167,21 +165,6 @@ export const ShopCategoryIcons = {
 };
 export const ShopCategories = Object.keys(ShopCategoryIcons);
 
-import {
-  FaFish,
-  FaDrumstickBite,
-  FaEgg,
-  FaCarrot,
-  
-  FaCookie,
-  
-  FaLeaf,
-  FaFlask,
-  FaGift,
-  FaBox,
-  FaHandsHelping,
-  FaWineBottle,
-} from "react-icons/fa";
 
 export const ProductCategoryIcons: Record<ProductCategory, React.ComponentType> = {
   RawMilk: FaWineBottle,

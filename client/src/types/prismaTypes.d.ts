@@ -75,7 +75,6 @@ export type ShopHighlight = (typeof ShopHighlight)[keyof typeof ShopHighlight]
 
 
 
-
 export const ProductCategory: {
   RawMilk: 'RawMilk',
   PasteurizedMilk: 'PasteurizedMilk',
@@ -150,6 +149,19 @@ export const ProductCategory: {
 
 export type ProductCategory = (typeof ProductCategory)[keyof typeof ProductCategory]
 
+export type VendorShopWithLocation = ShopOverviewProps & {
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+    coordinates: {
+      longitude: number;
+      latitude: number;
+    };
+  };
+};
 
 export const VendorShopType: {
   Farm: 'Farm',

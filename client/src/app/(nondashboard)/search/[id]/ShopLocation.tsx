@@ -1,103 +1,39 @@
-'use client';
-
-import React, { useEffect, useRef } from 'react'
+import { useGetShopQuery } from "@/state/api";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useAppSelector } from '@/state/redux';
-import { FiltersState } from '@/state';
-import { useGetShopsQuery } from '@/state/api';
-import { VendorShop } from "@/types/prismaTypes";
-
-type VendorShopWithLocation = VendorShop & {
-    location: {
-      address: string;
-      city: string;
-      state: string;
-      country: string;
-      postalCode: string;
-      coordinates: {
-        longitude: number;
-        latitude: number;
-      };
-    };
-  };
+import React, { useEffect, useRef } from "react";
+import { MapPin, Compass } from "lucide-react";
 
 mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN as string;
 
-const Map = () => {
-    const mapContainerRef = useRef<HTMLDivElement>(null);
-    const mapRef = useRef<mapboxgl.Map | null>(null);
-  
-    const filters = useAppSelector((state) => state.global.filters);
-    const isFiltersFullOpen = useAppSelector((state) => state.global.isFiltersFullOpen);
-  
-    const { data: shops, isLoading, isError } = useGetShopsQuery(filters);
-  
-    // Init map
-    useEffect(() => {
-      if (isLoading || isError || !shops || !mapContainerRef.current) return;
-  
-      if (!mapRef.current) {
-        mapRef.current = new mapboxgl.Map({
-          container: mapContainerRef.current,
-          style: 'mapbox://styles/igorlozkodev/cmb11sta200f501qxbrru6dxp',
-          center: filters.coordinates || [-6.2603, 53.3498],
-          zoom: 9,
-        });
+const ShopLocation = ({ vendorShopId }: ShopOverviewProps) => {
+  const {
+    data: shop,
+    isError,
+    isLoading,
+  } = useGetShopQuery(vendorShopId);
 
-        shops.forEach((shop) =>{
-            const marker = createShopMarker(shop as VendorShopWithLocation, mapRef.current!);
-            const markerElement = marker.getElement();
-            const path = markerElement.querySelector("path[fill='#3FB1CE']");
-            if (path) path.setAttribute("fill", "#000000");
-        })
-  
-        mapRef.current.on('load', () => {
-          setTimeout(() => {
-            mapRef.current?.resize();
-          }, 350);
-        });
-      }
-  
-      return () => {
-        mapRef.current?.remove();
-        mapRef.current = null;
-      };
-    }, [filters, shops, isLoading, isError]);
-  
-    // Sync resize to filter close/open animation
-    useEffect(() => {
-      const transitionDelay = 600; // must match Tailwind duration (300ms + buffer)
-  
-      const timeout = setTimeout(() => {
-        mapRef.current?.resize();
-      }, transitionDelay);
-  
-      return () => clearTimeout(timeout);
-    }, [isFiltersFullOpen]);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
 
-    if (isLoading) return <>Loading...</>;
-    if (isError || !shops) return <div>Failed to fetch shops</div>;
-  
-    return (
-      <div className=" flex-grow basis-5/12 relative rounded-xl transition-all duration-300 ease-in-out">
-        <div
-          ref={mapContainerRef}
-          className="map-container rounded-xl"
-          style={{ height: '100%', width: '100%' }}
-        />
-      </div>
-    );
-  };
+  useEffect(() => {
+    if (isLoading || isError || !shop || !shop.location?.coordinates) return;
 
-  const createShopMarker = (shop: VendorShopWithLocation, map: mapboxgl.Map) => {
+    const map = new mapboxgl.Map({
+      container: mapContainerRef.current!,
+      style: "mapbox://styles/igorlozkodev/cmb11sta200f501qxbrru6dxp",
+      center: [
+        shop.location.coordinates.longitude,
+        shop.location.coordinates.latitude,
+      ],
+      zoom: 14,
+    });
+
     const photo = shop.photoUrls?.[0] || "/fallback.jpg";
     const address = shop.location?.address || "Local area";
     const rating = shop.averageRating?.toFixed(1) ?? "–";
     const categories = shop.productCategory?.slice(0, 3).join(", ") || "Fresh local goods";
     const vendorType = shop.vendorShopType || "Vendor";
-    
-  
+
     const popupHtml = `
       <div 
         onclick="if (!event.target.closest('button')) window.open('/search/${shop.id}', '_blank')"
@@ -161,8 +97,8 @@ const Map = () => {
         </div>
       </div>
     `;
-  
-    return new mapboxgl.Marker({ color: "#22c55e" })
+
+    const marker = new mapboxgl.Marker({ color: "#22c55e" })
       .setLngLat([
         shop.location.coordinates.longitude,
         shop.location.coordinates.latitude,
@@ -171,7 +107,48 @@ const Map = () => {
         new mapboxgl.Popup({ offset: 25, closeButton: false, closeOnClick: true }).setHTML(popupHtml)
       )
       .addTo(map);
-  };
-  
-  
-  export default Map;
+
+    const markerElement = marker.getElement();
+    const path = markerElement.querySelector("path[fill='#3FB1CE']");
+    if (path) path.setAttribute("fill", "#000000");
+
+    return () => map.remove();
+  }, [shop, isError, isLoading]);
+
+  if (isLoading) return <>Loading...</>;
+  if (isError || !shop) return <>Shop not Found</>;
+
+  return (
+    <div className="py-16">
+      <h3 className="text-xl font-semibold text-primary-800 dark:text-primary-100">
+        Map and Location
+      </h3>
+      <div className="flex justify-between items-center text-sm text-primary-500 mt-2">
+        <div className="flex items-center text-gray-500">
+          <MapPin className="w-4 h-4 mr-1 text-gray-700" />
+          Shop Address:
+          <span className="ml-2 font-semibold text-gray-700">
+            {shop.location?.address || "Address not available"}
+          </span>
+        </div>
+        <a
+          href={`https://maps.google.com/?q=${encodeURIComponent(
+            shop.location?.address || ""
+          )}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex justify-between items-center hover:underline gap-2 text-primary-600"
+        >
+          <Compass className="w-5 h-5" />
+          Get Directions
+        </a>
+      </div>
+      <div
+        className="relative mt-4 h-[300px] rounded-lg overflow-hidden"
+        ref={mapContainerRef}
+      />
+    </div>
+  );
+};
+
+export default ShopLocation;

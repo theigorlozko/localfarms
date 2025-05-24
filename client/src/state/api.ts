@@ -17,7 +17,7 @@ export const api = createApi({
     },
   }),
   reducerPath: "api",
-  tagTypes: ["Vendors","Buyers", "Users", "Shops"],
+  tagTypes: ["Vendors","Buyers", "Users", "Shops", "Shop Details"],
   endpoints: (build) => ({
     getAuthUser: build.query<User, void>({
       queryFn: async (_, _queryApi, _extraoptions, fetchWithBQ) => {
@@ -80,17 +80,6 @@ export const api = createApi({
       },
     }),
 
-    updateUserSettings: build.mutation<User, {cognitoId: string } & Partial<User>>({
-      query: ({ cognitoId, ...updatedUser }) => ({
-        url: `/users/${cognitoId}`,
-        method: "PUT",
-        body: updatedUser,
-      }),
-      // responsible for matching backend data to front end 
-      invalidatesTags: (result) => [{ type: "Users", id: result?.id }],
-
-    }),
-
     // Shop related endpoints.
     getShops: build.query<
         VendorShop[],
@@ -130,13 +119,88 @@ export const api = createApi({
           error: "Failed to fetch shops.",
         });
       },
-    }),  
+    }),
+
+    getShop: build.query<VendorShopWithLocation, number>({
+      query: (id) => `shops/${id}`,
+      providesTags: (result, error, id) => [{ type: "Shop Details", id }],
+    }),
+
+
+    //Tenant Related endpoints
+    getUser: build.query<
+        User,
+        string
+      >({
+        query: (cognitoId) => `users/${cognitoId}`,
+     providesTags: (result) => [{type: "Users", id: result?.id}],
+      async onQueryStarted(_, { queryFulfilled }) {
+        await withToast(queryFulfilled, {
+          error: "Failed to load user profile.",
+      });
+    },
+    }),
+
+    updateUserSettings: build.mutation<User, {cognitoId: string } & Partial<User>>({
+      query: ({ cognitoId, ...updatedUser }) => ({
+        url: `/users/${cognitoId}`,
+        method: "PUT",
+        body: updatedUser,
+      }),
+      // responsible for matching backend data to front end 
+      invalidatesTags: (result) => [{ type: "Users", id: result?.id }],
+
+    }),
+    // Add to favorites
+    addFavoriteShop: build.mutation<
+    User,
+    { cognitoId: string; vendorShopId: number }
+    >({
+    query: ({ cognitoId, vendorShopId }) => ({
+      url: `users/${cognitoId}/favorites/${vendorShopId}`,
+      method: "POST",
+    }),
+    invalidatesTags: (result) => [
+      { type: "Users", id: result?.id },
+      { type: "Shops", id: "LIST" },
+    ],
+    async onQueryStarted(_, { queryFulfilled }) {
+      await withToast(queryFulfilled, {
+        success: "Added to favorites!",
+        error: "Failed to add to favorites",
+      });
+    },
+    }),
+    // Remove from favorites
+    removeFavoriteShop: build.mutation<
+    User,
+    { cognitoId: string; vendorShopId: number }
+    >({
+    query: ({ cognitoId, vendorShopId }) => ({ // cognitoId and the vendor shop id is required to be sent to backend
+      url: `users/${cognitoId}/favorites/${vendorShopId}`,
+      method: "DELETE",
+    }),
+    invalidatesTags: (result) => [
+      { type: "Users", id: result?.id },
+      { type: "Shops", id: "LIST" },
+    ],
+    async onQueryStarted(_, { queryFulfilled }) {
+      await withToast(queryFulfilled, {
+        success: "Removed from favorites!",
+        error: "Failed to remove from favorites.",
+      });
+    },
+    }),
   }),
 });
 
 
 export const {
+  useGetUserQuery,
+  useGetShopQuery,
   useGetAuthUserQuery,
   useUpdateUserSettingsMutation,
   useGetShopsQuery,
+  useAddFavoriteShopMutation,
+  useRemoveFavoriteShopMutation
 } = api;

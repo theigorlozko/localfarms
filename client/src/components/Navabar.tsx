@@ -23,15 +23,17 @@ const Navabar = () => {
 
     const handleSignOut = async () => {
         await signOut();
+        localStorage.clear(); // Clear any local storage data
+        sessionStorage.clear(); // Clear any session storage data
         window.location.href = "/landing";
     };
 
   return (
     <div
-      className="fixed top-0 left-0 w-full z-50 shadow-xl bg-primary-700 "
+      className="fixed top-0 left-0 w-full z-50 shadow-md "
       style={{ height: `${NAVBAR_HEIGHT}px` }}
     >
-        <div className="flex items-center justify-between w-full py-3 px-8 bg-primary-700 text-white">
+        <div className="flex items-center justify-between w-full py-3 px-8 bg-white text-white">
             {/* LEFT: Logo and sidebar trigger */}
             <div className="flex items-center gap-4 md:gap-6">
                 {isDashboardPage && (
@@ -47,7 +49,7 @@ const Navabar = () => {
                 <div className="flex items-center gap-3">
                     <div className="text-green-500 text-xl font-bold">
                     GO
-                    <span className="text-primary-200 font-light hover:!text-primary-300">
+                    <span className="text-primary-600 font-semibold hover:!text-primary-300">
                         LOCAL
                     </span>
                     </div>
@@ -59,8 +61,8 @@ const Navabar = () => {
             {isDashboardPage && authUser && (
                 <div className="flex gap-2 justify-center">
                 <Button
-                    variant="secondary"
-                    className="text-primary-700 bg-primary-50 hover:bg-green-600 hover:text-primary-50"
+                    variant="green"
+                    className="text-white hover:text-primary-100"
                     onClick={() => router.push("/users/addshop")}
                 >
                     <Plus className="h-4 w-4" />
@@ -68,8 +70,8 @@ const Navabar = () => {
                 </Button>
 
                 <Button
-                    variant="secondary"
-                    className="text-primary-700 bg-primary-50 hover:bg-green-600 hover:text-primary-50"
+                    variant="green"
+                    className="text-white hover:text-primary-100"
                     onClick={() => router.push("/users/shops")}
                 >
                     <Search className="h-4 w-4" />
@@ -85,7 +87,7 @@ const Navabar = () => {
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <div className="flex items-center gap-5 cursor-pointer focus:outline-none">
-                        <p className="text-primary-200 hidden md:block">
+                        <p className="text-primary-600 hidden md:block">
                             {authUser.userInfo?.name || "Signed In"}
                         </p>
                         <Avatar>
@@ -143,7 +145,7 @@ const Navabar = () => {
                     <Link href="/signin">
                     <Button
                         variant="outline"
-                        className="text-white border-white bg-transparent hover:bg-white hover:text-primary-700 rounded-lg"
+                        className="text-green-600 border-green-500 bg-transparent border-2 hover:bg-green-500 hover:text-white rounded-lg"
                     >
                         Sign In
                     </Button>
@@ -151,7 +153,7 @@ const Navabar = () => {
                     <Link href="/signup">
                     <Button
                         variant="secondary"
-                        className="text-white bg-green-600 hover:bg-white hover:text-primary-700 rounded-lg"
+                        className="text-white bg-green-500 hover:bg-green-600 hover:text-white rounded-lg"
                     >
                         Sign Up
                     </Button>
