@@ -54,7 +54,7 @@ const Listings = () => {
     <h3 className="text-sm px-4 font-bold">
       {(shops ?? []).length}{" "}
       <span className="text-gray-700 font-normal">
-        Places in {filters.location}
+        Found
       </span>
     </h3>
     <div className="flex">

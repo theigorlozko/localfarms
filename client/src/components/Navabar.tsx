@@ -38,7 +38,7 @@ const Navabar = () => {
             <div className="flex items-center gap-4 md:gap-6">
                 {isDashboardPage && (
                 <div className="md:hidden">
-                    <SidebarTrigger />
+                    <SidebarTrigger className="bg-white text-black hover:bg-gray-300" />
                 </div>
                 )}
                 <Link
@@ -59,25 +59,25 @@ const Navabar = () => {
 
             {/* CENTER: Add/Search Buttons */}
             {isDashboardPage && authUser && (
-                <div className="flex gap-2 justify-center">
+            <div className="hidden md:flex gap-2 justify-center">
                 <Button
-                    variant="green"
-                    className="text-white hover:text-primary-100"
-                    onClick={() => router.push("/users/addshop")}
+                variant="green"
+                className="text-white hover:text-primary-100"
+                onClick={() => router.push("/users/addshop")}
                 >
-                    <Plus className="h-4 w-4" />
-                    <span className="hidden md:block ml-2">Add shop</span>
+                <Plus className="h-4 w-4" />
+                <span className="ml-2">Add shop</span>
                 </Button>
 
                 <Button
-                    variant="green"
-                    className="text-white hover:text-primary-100"
-                    onClick={() => router.push("/users/shops")}
+                variant="green"
+                className="text-white hover:text-primary-100"
+                onClick={() => router.push("/users/shops")}
                 >
-                    <Search className="h-4 w-4" />
-                    <span className="hidden md:block ml-2">Search shops</span>
+                <Search className="h-4 w-4" />
+                <span className="ml-2">Search shops</span>
                 </Button>
-                </div>
+            </div>
             )}
 
             {/* RIGHT: User Avatar + Dropdown */}
@@ -120,7 +120,7 @@ const Navabar = () => {
                         Dashboard
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-primary-200" />
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                         className="cursor-pointer hover:!bg-primary-700 hover:!text-primary-100 "
                         onClick={() =>
                             router.push(
@@ -130,7 +130,7 @@ const Navabar = () => {
                         }
                         >
                         Settings
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                         <DropdownMenuItem
                         className="cursor-pointer hover:!bg-primary-700 hover:!text-primary-100 "
                         onClick={handleSignOut}
